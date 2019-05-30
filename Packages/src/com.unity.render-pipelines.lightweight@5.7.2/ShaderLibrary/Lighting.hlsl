@@ -334,6 +334,13 @@ half3 SampleSHPixel(half3 L2Term, half3 normalWS)
     return SampleSH(normalWS);
 }
 
+#if defined(LIGHTMAP_ON) && defined(SHADOWS_SHADOWMASK)
+half4 SampleShadowMask(float2 lightmapUV)
+{
+	return SAMPLE_TEXTURE2D(unity_ShadowMask, samplerunity_ShadowMask, lightmapUV);
+}
+#endif
+
 // Sample baked lightmap. Non-Direction and Directional if available.
 // Realtime GI is not supported.
 half3 SampleLightmap(float2 lightmapUV, half3 normalWS)
@@ -433,6 +440,9 @@ void MixRealtimeAndBakedGI(inout Light light, half3 normalWS, inout half3 bakedG
 #if defined(_MIXED_LIGHTING_SUBTRACTIVE) && defined(LIGHTMAP_ON)
     bakedGI = SubtractDirectMainLightFromLightmap(light, normalWS, bakedGI);
 #endif
+#if defined(LIGHTMAP_ON) && defined(SHADOWS_SHADOWMASK)
+	light.shadowAttenuation = shadowMask.r;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -493,7 +503,12 @@ half4 LightweightFragmentPBR(InputData inputData, half3 albedo, half metallic, h
     InitializeBRDFData(albedo, metallic, specular, smoothness, alpha, brdfData);
 
     Light mainLight = GetMainLight(inputData.shadowCoord);
-    MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, half4(0, 0, 0, 0));
+#if defined(LIGHTMAP_ON) && defined(SHADOWS_SHADOWMASK)
+	half4 shadowmask = inputData.bakedAtten;
+#else
+	half4 shadowmask = half4(0, 0, 0, 0);
+#endif
+	MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, shadowmask);
 
     half3 color = GlobalIllumination(brdfData, inputData.bakedGI, occlusion, inputData.normalWS, inputData.viewDirectionWS);
     color += LightingPhysicallyBased(brdfData, mainLight, inputData.normalWS, inputData.viewDirectionWS);
@@ -518,7 +533,12 @@ half4 LightweightFragmentPBR(InputData inputData, half3 albedo, half metallic, h
 half4 LightweightFragmentBlinnPhong(InputData inputData, half3 diffuse, half4 specularGloss, half smoothness, half3 emission, half alpha)
 {
     Light mainLight = GetMainLight(inputData.shadowCoord);
-    MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, half4(0, 0, 0, 0));
+#if defined(LIGHTMAP_ON) && defined(SHADOWS_SHADOWMASK)
+	half4 shadowmask = inputData.bakedAtten;
+#else
+	half4 shadowmask = half4(0, 0, 0, 0);
+#endif
+	MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, shadowmask);
 
     half3 attenuatedLightColor = mainLight.color * (mainLight.distanceAttenuation * mainLight.shadowAttenuation);
     half3 diffuseColor = inputData.bakedGI + LightingLambert(attenuatedLightColor, mainLight.direction, inputData.normalWS);

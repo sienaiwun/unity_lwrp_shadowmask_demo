@@ -64,6 +64,9 @@ namespace UnityEngine.Rendering.LWRP
             CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.MixedLightingSubtractive,
                 renderingData.lightData.supportsMixedLighting &&
                 m_MixedLightingSetup == MixedLightingSetup.Subtractive);
+            CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.MixedLightingShadowmask,
+            renderingData.lightData.supportsMixedLighting &&
+            m_MixedLightingSetup == MixedLightingSetup.ShadowMask);
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
         }
@@ -153,12 +156,18 @@ namespace UnityEngine.Rendering.LWRP
 
             Light light = lightData.light;
 
-            // TODO: Add support to shadow mask
             if (light != null && light.bakingOutput.mixedLightingMode == MixedLightingMode.Subtractive && light.bakingOutput.lightmapBakeType == LightmapBakeType.Mixed)
             {
-                if (m_MixedLightingSetup == MixedLightingSetup.None && lightData.light.shadows != LightShadows.None)
+                if (lightData.light.shadows != LightShadows.None)
                 {
                     m_MixedLightingSetup = MixedLightingSetup.Subtractive;
+                }
+            }
+            if (light != null && light.bakingOutput.mixedLightingMode == MixedLightingMode.Shadowmask && light.bakingOutput.lightmapBakeType == LightmapBakeType.Mixed)
+            {
+                if (lightData.light.shadows != LightShadows.None)
+                {
+                    m_MixedLightingSetup = MixedLightingSetup.ShadowMask;
                 }
             }
         }

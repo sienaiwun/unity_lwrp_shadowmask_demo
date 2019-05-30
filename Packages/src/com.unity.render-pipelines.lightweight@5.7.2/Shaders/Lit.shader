@@ -109,6 +109,7 @@ Shader "Lightweight Render Pipeline/Lit"
             // Unity defined keywords
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
+			#pragma multi_compile SHADOWS_SHADOWMASK
             #pragma multi_compile_fog
 
             //--------------------------------------
