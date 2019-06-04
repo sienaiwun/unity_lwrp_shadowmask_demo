@@ -113,6 +113,8 @@ namespace UnityEngine.Rendering.LWRP
         [SerializeField] Vector3 m_Cascade4Split = new Vector3(0.067f, 0.2f, 0.467f);
         [SerializeField] float m_ShadowDepthBias = 1.0f;
         [SerializeField] float m_ShadowNormalBias = 1.0f;
+        [SerializeField] float m_ShadowHWDepthOffset = 1.0f;
+        [SerializeField] float m_ShadowHWDepthSlope = 1.0f;
         [SerializeField] bool m_SoftShadowsSupported = false;
 
         // Advanced settings
@@ -374,6 +376,18 @@ namespace UnityEngine.Rendering.LWRP
         {
             get { return m_ShadowNormalBias; }
             set { m_ShadowNormalBias = ValidateShadowBias(value); }
+        }
+
+        public float shadowHWDepthOffset
+        {
+            get { return m_ShadowHWDepthOffset; }
+            set { m_ShadowHWDepthOffset = ValidateShadowBias(value); }
+        }
+
+        public float shadowHWDepthSlope
+        {
+            get { return m_ShadowHWDepthSlope; }
+            set { m_ShadowHWDepthSlope = ValidateShadowBias(value); }
         }
 
         public bool supportsSoftShadows

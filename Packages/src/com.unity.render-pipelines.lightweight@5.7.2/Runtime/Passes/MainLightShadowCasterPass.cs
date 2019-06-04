@@ -155,6 +155,8 @@ namespace UnityEngine.Rendering.LWRP
             VisibleLight shadowLight = lightData.visibleLights[shadowLightIndex];
 
             CommandBuffer cmd = CommandBufferPool.Get(m_ProfilerTag);
+            cmd.SetGlobalDepthBias(shadowData.bias[shadowLightIndex].z, shadowData.bias[shadowLightIndex].w);
+
             using (new ProfilingSample(cmd, m_ProfilerTag))
             {
                 var settings = new ShadowDrawingSettings(cullResults, shadowLightIndex);
@@ -176,6 +178,7 @@ namespace UnityEngine.Rendering.LWRP
             CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.MainLightShadows, true);
             CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.MainLightShadowCascades, shadowData.mainLightShadowCascadesCount > 1);
             CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.SoftShadows, shadowLight.light.shadows == LightShadows.Soft && shadowData.supportsSoftShadows);
+            cmd.SetGlobalDepthBias(0, 0);
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
         }

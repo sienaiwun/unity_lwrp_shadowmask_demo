@@ -317,7 +317,7 @@ namespace UnityEngine.Rendering.LWRP
                 if (data && !data.usePipelineSettings)
                     m_ShadowBiasData.Add(new Vector4(light.shadowBias, light.shadowNormalBias, 0.0f, 0.0f));
                 else
-                    m_ShadowBiasData.Add(new Vector4(settings.shadowDepthBias, settings.shadowNormalBias, 0.0f, 0.0f));
+                    m_ShadowBiasData.Add(new Vector4(settings.shadowDepthBias, settings.shadowNormalBias, settings.shadowHWDepthOffset, settings.shadowHWDepthSlope));
             }
 
             shadowData.bias = m_ShadowBiasData;
