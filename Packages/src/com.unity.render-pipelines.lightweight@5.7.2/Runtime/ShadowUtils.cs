@@ -46,9 +46,9 @@ namespace UnityEngine.Rendering.LWRP
             boundingBoxCorner[5] = new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.max.z);
             boundingBoxCorner[6] = new Vector3(_localBounds.max.x, _localBounds.max.y, _localBounds.min.z);
             boundingBoxCorner[7] = new Vector3(_localBounds.max.x, _localBounds.max.y, _localBounds.max.z);
-            Bounds output = new Bounds ();
-            foreach (var point in boundingBoxCorner)
-              output.Encapsulate(mat.MultiplyPoint(point));
+            Bounds output = new Bounds (mat.MultiplyPoint(boundingBoxCorner[0]),new Vector3(0,0,0));
+            for (int i = 1; i < boundingBoxCorner.Length; i ++)
+                output.Encapsulate(mat.MultiplyPoint(boundingBoxCorner[i]));
             return output;
         }
 
