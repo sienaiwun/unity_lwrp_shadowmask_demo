@@ -35,7 +35,37 @@ namespace UnityEngine.Rendering.LWRP
                 GraphicsSettings.HasShaderDefine(Graphics.activeTier, BuiltinShaderDefine.UNITY_METAL_SHADOWS_USE_POINT_FILTERING);
         }
 
-        public static bool ExtractDirectionalLightMatrix(ref CullingResults cullResults, ref ShadowData shadowData, int shadowLightIndex, int cascadeIndex, int shadowmapWidth, int shadowmapHeight, int shadowResolution, float shadowNearPlane, out Vector4 cascadeSplitDistance, out ShadowSliceData shadowSliceData, out Matrix4x4 viewMatrix, out Matrix4x4 projMatrix)
+        public static Bounds TransformBounds(Matrix4x4 mat, Bounds _localBounds)
+        {
+            Vector3[] boundingBoxCorner = new Vector3[8];
+            boundingBoxCorner[0] = new Vector3(_localBounds.min.x, _localBounds.min.y, _localBounds.min.z);
+            boundingBoxCorner[1] = new Vector3(_localBounds.min.x, _localBounds.min.y, _localBounds.max.z);
+            boundingBoxCorner[2] = new Vector3(_localBounds.min.x, _localBounds.max.y, _localBounds.min.z);
+            boundingBoxCorner[3] = new Vector3(_localBounds.min.x, _localBounds.max.y, _localBounds.max.z);
+            boundingBoxCorner[4] = new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.min.z);
+            boundingBoxCorner[5] = new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.max.z);
+            boundingBoxCorner[6] = new Vector3(_localBounds.max.x, _localBounds.max.y, _localBounds.min.z);
+            boundingBoxCorner[7] = new Vector3(_localBounds.max.x, _localBounds.max.y, _localBounds.max.z);
+            Bounds output = new Bounds ();
+            foreach (var point in boundingBoxCorner)
+              output.Encapsulate(mat.MultiplyPoint(point));
+            return output;
+        }
+
+        public static Matrix4x4 ProjMatFromBounds(Bounds lightview_bounds)
+        {
+            float l = lightview_bounds.min.x;
+            float r = lightview_bounds.max.x;
+            float b = lightview_bounds.min.y;
+            float t = lightview_bounds.max.y;
+            float n = lightview_bounds.min.z;
+            float f = lightview_bounds.max.z;
+            Matrix4x4 proj = Matrix4x4.Ortho(l, r, b, t, n, f+100);
+            return proj;
+            
+        }
+
+        public static bool ExtractDirectionalLightMatrix(ref CullingResults cullResults, ref ShadowData shadowData, int shadowLightIndex, int cascadeIndex, int shadowmapWidth, int shadowmapHeight, int shadowResolution, float shadowNearPlane, out Vector4 cascadeSplitDistance, out ShadowSliceData shadowSliceData, out Matrix4x4 viewMatrix, out Matrix4x4 projMatrix, Bounds bounds)
         {
             ShadowSplitData splitData;
             bool success = cullResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(shadowLightIndex,
@@ -47,7 +77,9 @@ namespace UnityEngine.Rendering.LWRP
             shadowSliceData.offsetY = (cascadeIndex / 2) * shadowResolution;
             shadowSliceData.resolution = shadowResolution;
             shadowSliceData.viewMatrix = viewMatrix;
-            shadowSliceData.projectionMatrix = projMatrix;
+
+            Bounds lightViewBounts = TransformBounds(viewMatrix, bounds);
+            shadowSliceData.projectionMatrix = ProjMatFromBounds(lightViewBounts);
             shadowSliceData.shadowTransform = GetShadowTransform(projMatrix, viewMatrix);
 
             // If we have shadow cascades baked into the atlas we bake cascade transform
