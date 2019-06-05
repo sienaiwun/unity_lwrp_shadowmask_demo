@@ -60,7 +60,7 @@ namespace UnityEngine.Rendering.LWRP
             float t = lightview_bounds.max.y;
             float n = lightview_bounds.min.z;
             float f = lightview_bounds.max.z;
-            Matrix4x4 proj = Matrix4x4.Ortho(l, r, b, t, n, f+100);
+            Matrix4x4 proj = Matrix4x4.Ortho(l, r, b, t, n, f+20);
             return proj;
             
         }
@@ -76,11 +76,12 @@ namespace UnityEngine.Rendering.LWRP
             shadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
             shadowSliceData.offsetY = (cascadeIndex / 2) * shadowResolution;
             shadowSliceData.resolution = shadowResolution;
-            shadowSliceData.viewMatrix = viewMatrix;
+            shadowSliceData.viewMatrix = viewMatrix;  
 
             Bounds lightViewBounts = TransformBounds(viewMatrix, bounds);
-            shadowSliceData.projectionMatrix = ProjMatFromBounds(lightViewBounts);
-            shadowSliceData.shadowTransform = GetShadowTransform(projMatrix, viewMatrix);
+            Matrix4x4 tight_projMatrix =  ProjMatFromBounds(lightViewBounts);
+            shadowSliceData.projectionMatrix = tight_projMatrix;
+            shadowSliceData.shadowTransform = GetShadowTransform(tight_projMatrix, viewMatrix);
 
             // If we have shadow cascades baked into the atlas we bake cascade transform
             // in each shadow matrix to save shader ALU and L/S
