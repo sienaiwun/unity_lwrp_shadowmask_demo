@@ -441,7 +441,7 @@ void MixRealtimeAndBakedGI(inout Light light, half3 normalWS, inout half3 bakedG
     bakedGI = SubtractDirectMainLightFromLightmap(light, normalWS, bakedGI);
 #endif
 #if defined(LIGHTMAP_ON) && defined(SHADOWS_SHADOWMASK)
-	light.shadowAttenuation = shadowMask.r;
+	light.shadowAttenuation = min(light.shadowAttenuation,shadowMask.r);
 #endif
 }
 
