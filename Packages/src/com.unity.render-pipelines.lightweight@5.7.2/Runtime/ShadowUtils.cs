@@ -52,14 +52,21 @@ namespace UnityEngine.Rendering.LWRP
             return output;
         }
 
-        public static Matrix4x4 ProjMatFromBounds(Bounds lightview_bounds)
+
+        public static Matrix4x4 ProjMatFromBounds(Bounds lightview_bounds,Matrix4x4 projection_mat)
         {
-            float l = lightview_bounds.min.x;
-            float r = lightview_bounds.max.x;
-            float b = lightview_bounds.min.y;
-            float t = lightview_bounds.max.y;
+            //Matrix4x4f& Matrix4x4f::SetOrtho
+            float width = 1.0f / projection_mat.m00;
+            float height = 1.0f / projection_mat.m11;
+
+            float l = Math.Max(-width,lightview_bounds.min.x);
+            float r = Math.Min(width, lightview_bounds.max.x);
+            float b = Math.Max(-height,lightview_bounds.min.y);
+            float t = Math.Min(height, lightview_bounds.max.y);
             float f = lightview_bounds.min.z;
             float n = lightview_bounds.max.z;
+             
+            
             Matrix4x4 proj = Matrix4x4.Ortho(l, r, b, t, n, f);
             return proj;
             
@@ -79,7 +86,7 @@ namespace UnityEngine.Rendering.LWRP
             shadowSliceData.viewMatrix = viewMatrix;  
 
             Bounds lightViewBounts = TransformBounds(viewMatrix, bounds);
-            Matrix4x4 tight_projMatrix =  ProjMatFromBounds(lightViewBounts);//tight aabb 
+            Matrix4x4 tight_projMatrix =  ProjMatFromBounds(lightViewBounts,projMatrix);//tight aabb 
             tight_projMatrix.SetRow(2, projMatrix.GetRow(2));
             shadowSliceData.projectionMatrix = tight_projMatrix;
             shadowSliceData.shadowTransform = GetShadowTransform(tight_projMatrix, viewMatrix);
