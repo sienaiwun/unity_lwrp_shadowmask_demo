@@ -155,7 +155,7 @@ namespace UnityEngine.Rendering.LWRP
             VisibleLight shadowLight = lightData.visibleLights[shadowLightIndex];
 
             CommandBuffer cmd = CommandBufferPool.Get(m_ProfilerTag);
-            cmd.SetGlobalDepthBias(shadowData.bias[shadowLightIndex].z, shadowData.bias[shadowLightIndex].w);
+            cmd.SetGlobalDepthBias(shadowData.bias[shadowLightIndex].z, 0.0f);// shader do slope bias
 
             using (new ProfilingSample(cmd, m_ProfilerTag))
             {

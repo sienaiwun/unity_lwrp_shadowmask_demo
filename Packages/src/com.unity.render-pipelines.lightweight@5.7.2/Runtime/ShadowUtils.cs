@@ -196,7 +196,7 @@ namespace UnityEngine.Rendering.LWRP
                 normalBias *= kernelRadius;
             }
 
-            return new Vector4(depthBias, normalBias, 0.0f, 0.0f);
+            return new Vector4(depthBias, normalBias, -shadowData.bias[shadowLightIndex].z, -shadowData.bias[shadowLightIndex].w);
         }
 
         public static void SetupShadowCasterConstantBuffer(CommandBuffer cmd, ref VisibleLight shadowLight, Vector4 shadowBias)
