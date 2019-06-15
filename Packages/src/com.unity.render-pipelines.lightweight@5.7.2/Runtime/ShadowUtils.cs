@@ -184,7 +184,7 @@ namespace UnityEngine.Rendering.LWRP
             float depthBias = -shadowData.bias[shadowLightIndex].x * texelSize;
             float normalBias = -shadowData.bias[shadowLightIndex].y * texelSize;
             
-            if (shadowData.supportsSoftShadows)
+            /*if (shadowData.supportsSoftShadows)
             {
                 // TODO: depth and normal bias assume sample is no more than 1 texel away from shadowmap
                 // This is not true with PCF. Ideally we need to do either
@@ -194,7 +194,7 @@ namespace UnityEngine.Rendering.LWRP
                 const float kernelRadius = 2.5f;
                 depthBias *= kernelRadius;
                 normalBias *= kernelRadius;
-            }
+            }*/
 
             return new Vector4(depthBias, normalBias, -shadowData.bias[shadowLightIndex].z, -shadowData.bias[shadowLightIndex].w);
         }
