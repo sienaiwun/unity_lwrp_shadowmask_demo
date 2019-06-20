@@ -10,6 +10,12 @@ using Lightmapping = UnityEngine.Experimental.GlobalIllumination.Lightmapping;
 
 namespace UnityEngine.Rendering.LWRP
 {
+
+    public interface IBeforeCameraRender
+    {
+        void ExecuteBeforeCameraRender(LightweightRenderPipeline pipelineInstance, ScriptableRenderContext context, Camera camera);
+    }
+
     public sealed partial class LightweightRenderPipeline : RenderPipeline
     {
         static class PerFrameBuffer
@@ -113,6 +119,10 @@ namespace UnityEngine.Rendering.LWRP
             foreach (Camera camera in cameras)
             {
                 BeginCameraRendering(renderContext, camera);
+
+                foreach (var beforeCamera in camera.GetComponents<IBeforeCameraRender>())
+                    beforeCamera.ExecuteBeforeCameraRender(this, renderContext, camera);
+
                 RenderSingleCamera(renderContext, camera);
                 EndCameraRendering(renderContext, camera);
             }

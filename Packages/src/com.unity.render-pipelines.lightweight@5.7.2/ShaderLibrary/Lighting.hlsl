@@ -7,6 +7,10 @@
 #include "Packages/com.unity.render-pipelines.lightweight/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.lightweight/ShaderLibrary/Shadows.hlsl"
 
+#ifdef PLANER_REFLECTION
+TEXTURE2D(_PlanarReflectionTexture);            SAMPLER(sampler_PlanarReflectionTexture);
+#endif
+
 // If lightmap is not defined than we evaluate GI (ambient + probes) from SH
 // We might do it fully or partially in vertex to save shader ALU
 #if !defined(LIGHTMAP_ON)
@@ -178,6 +182,9 @@ struct BRDFData
     // them in the light loop. Take a look at DirectBRDF function for detailed explaination.
     half normalizationTerm;     // roughness * 4.0 + 2.0
     half roughness2MinusOne;    // roughness² - 1.0
+#ifdef PLANER_REFLECTION
+	half2 screenPos;
+#endif
 };
 
 half ReflectivitySpecular(half3 specular)
@@ -228,6 +235,9 @@ inline void InitializeBRDFData(half3 albedo, half metallic, half3 specular, half
 #ifdef _ALPHAPREMULTIPLY_ON
     outBRDFData.diffuse *= alpha;
     alpha = alpha * oneMinusReflectivity + reflectivity;
+#endif
+#ifdef PLANER_REFLECTION
+	outBRDFData.screenPos = half2(0.0, 0.0);//un initialt
 #endif
 }
 
@@ -378,22 +388,31 @@ half3 SampleLightmap(float2 lightmapUV, half3 normalWS)
 #define SAMPLE_GI(lmName, shName, normalWSName) SampleSHPixel(shName, normalWSName)
 #endif
 
+#if defined(PLANER_REFLECTION)
+half3 GlossyEnvironmentReflection(half2 screenPos, half perceptualRoughness, half occlusion)
+{
+     half mip = PerceptualRoughnessToMipmapLevel(perceptualRoughness);
+     half4 irradiance = 	SAMPLE_TEXTURE2D_LOD(_PlanarReflectionTexture, sampler_PlanarReflectionTexture, screenPos, mip);
+	 return irradiance * occlusion;
+}
+#endif
+
 half3 GlossyEnvironmentReflection(half3 reflectVector, half perceptualRoughness, half occlusion)
 {
 #if !defined(_ENVIRONMENTREFLECTIONS_OFF)
-    half mip = PerceptualRoughnessToMipmapLevel(perceptualRoughness);
-    half4 encodedIrradiance = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, reflectVector, mip);
+	half mip = PerceptualRoughnessToMipmapLevel(perceptualRoughness);
+	half4 encodedIrradiance = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, reflectVector, mip);
 
 #if !defined(UNITY_USE_NATIVE_HDR)
-    half3 irradiance = DecodeHDREnvironment(encodedIrradiance, unity_SpecCube0_HDR);
+	half3 irradiance = DecodeHDREnvironment(encodedIrradiance, unity_SpecCube0_HDR);
 #else
-    half3 irradiance = encodedIrradiance.rbg;
+	half3 irradiance = encodedIrradiance.rbg;
 #endif
 
-    return irradiance * occlusion;
+	return irradiance * occlusion;
 #endif // GLOSSY_REFLECTIONS
 
-    return _GlossyEnvironmentColor.rgb * occlusion;
+	return _GlossyEnvironmentColor.rgb * occlusion;
 }
 
 half3 SubtractDirectMainLightFromLightmap(Light mainLight, half3 normalWS, half3 bakedGI)
@@ -430,8 +449,11 @@ half3 GlobalIllumination(BRDFData brdfData, half3 bakedGI, half occlusion, half3
     half fresnelTerm = Pow4(1.0 - saturate(dot(normalWS, viewDirectionWS)));
 
     half3 indirectDiffuse = bakedGI * occlusion;
+#ifdef PLANER_REFLECTION
+	half3 indirectSpecular = GlossyEnvironmentReflection(brdfData.screenPos, brdfData.perceptualRoughness, occlusion);
+#else
     half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, brdfData.perceptualRoughness, occlusion);
-
+#endif
     return EnvironmentBRDF(brdfData, indirectDiffuse, indirectSpecular, fresnelTerm);
 }
 
@@ -501,6 +523,9 @@ half4 LightweightFragmentPBR(InputData inputData, half3 albedo, half metallic, h
 {
     BRDFData brdfData;
     InitializeBRDFData(albedo, metallic, specular, smoothness, alpha, brdfData);
+#if defined(PLANER_REFLECTION)
+	brdfData.screenPos = inputData.screenPos;
+#endif
 
     Light mainLight = GetMainLight(inputData.shadowCoord);
 #if defined(LIGHTMAP_ON) && defined(SHADOWS_SHADOWMASK)

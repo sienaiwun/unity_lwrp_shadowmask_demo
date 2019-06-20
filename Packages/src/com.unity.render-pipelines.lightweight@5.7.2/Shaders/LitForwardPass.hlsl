@@ -37,6 +37,10 @@ struct Varyings
     float4 shadowCoord              : TEXCOORD7;
 #endif
 
+#if defined(PLANER_REFLECTION)
+	float2 positionSS       : TEXCOORD8;
+#endif
+
     float4 positionCS               : SV_POSITION;
     UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
@@ -73,6 +77,10 @@ void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData
     inputData.bakedGI = SAMPLE_GI(input.lightmapUV, input.vertexSH, inputData.normalWS);
 #if defined(LIGHTMAP_ON) && defined(SHADOWS_SHADOWMASK)  
 	inputData.bakedAtten = SampleShadowMask(input.lightmapUV);
+#endif
+#if defined(PLANER_REFLECTION)
+	//screenUV.xyz /= screenUV.w;
+	inputData.screenPos = input.positionSS;
 #endif
 }
 
@@ -114,11 +122,21 @@ Varyings LitPassVertex(Attributes input)
     output.positionWS = vertexInput.positionWS;
 #endif
 
+
+	output.positionCS = vertexInput.positionCS;
+
 #if defined(_MAIN_LIGHT_SHADOWS) && !defined(_RECEIVE_SHADOWS_OFF)
     output.shadowCoord = GetShadowCoord(vertexInput);
 #endif
 
-    output.positionCS = vertexInput.positionCS;
+#if defined(PLANER_REFLECTION)
+	float4 clipPos = vertexInput.positionCS;
+	clipPos.xyz /= clipPos.w;
+	output.positionSS = clipPos.xy * 0.5f + 0.5f;
+    if (_ProjectionParams.x < 0)
+        output.positionSS.y  = 1.0 - output.positionSS.y;
+#endif
+
 
     return output;
 }
