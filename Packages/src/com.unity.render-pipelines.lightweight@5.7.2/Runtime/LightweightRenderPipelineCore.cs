@@ -80,6 +80,7 @@ namespace UnityEngine.Rendering.LWRP
         public static readonly string SoftShadows = "_SHADOWS_SOFT";
         public static readonly string MixedLightingSubtractive = "_MIXED_LIGHTING_SUBTRACTIVE";
         public static readonly string MixedLightingShadowmask = "_MIXED_LIGHTING_SHADOWMASK";
+        public static readonly string ShadowMaskKeyword = "SHADOWS_SHADOWMASK";
 
         public static readonly string DepthNoMsaa = "_DEPTH_NO_MSAA";
         public static readonly string DepthMsaa2 = "_DEPTH_MSAA_2";

@@ -64,9 +64,10 @@ namespace UnityEngine.Rendering.LWRP
             CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.MixedLightingSubtractive,
                 renderingData.lightData.supportsMixedLighting &&
                 m_MixedLightingSetup == MixedLightingSetup.Subtractive);
-            CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.MixedLightingShadowmask,
-            renderingData.lightData.supportsMixedLighting &&
-            m_MixedLightingSetup == MixedLightingSetup.ShadowMask);
+            bool isSurportShadowmask = renderingData.lightData.supportsMixedLighting &&
+              m_MixedLightingSetup == MixedLightingSetup.ShadowMask;
+            CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.MixedLightingShadowmask, isSurportShadowmask);
+            CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.ShadowMaskKeyword, isSurportShadowmask);
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
         }
