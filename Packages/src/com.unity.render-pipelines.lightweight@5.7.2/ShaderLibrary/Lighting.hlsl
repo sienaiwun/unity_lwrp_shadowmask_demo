@@ -9,6 +9,9 @@
 
 #ifdef PLANER_REFLECTION
 TEXTURE2D(_PlanarReflectionTexture);            SAMPLER(sampler_PlanarReflectionTexture);
+TEXTURE2D(_PlanarReflectionDepth);            SAMPLER(sampler_PlanarReflectionDepth);
+float4x4 _Reflect_ViewProjectInverse;
+float4 _Reflect_Plane;
 #endif
 
 // If lightmap is not defined than we evaluate GI (ambient + probes) from SH

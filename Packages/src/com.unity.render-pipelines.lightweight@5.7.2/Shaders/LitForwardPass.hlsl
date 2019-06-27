@@ -155,6 +155,18 @@ half4 LitPassFragment(Varyings input) : SV_Target
     half4 color = LightweightFragmentPBR(inputData, surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion, surfaceData.emission, surfaceData.alpha);
 
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
+#if defined(PLANER_REFLECTION)
+    float2 ssPos =  input.positionSS.xy;
+    float depth = SAMPLE_TEXTURE2D(_PlanarReflectionDepth, sampler_PlanarReflectionDepth,ssPos).r;
+    float4 H = float4((ssPos.x) * 2 - 1, (ssPos.y) * 2 - 1, depth, 1.0);
+	float4 D = mul(_Reflect_ViewProjectInverse, H);
+	float3 refpos = D.xyz / D.w;
+    float distance = abs(dot(refpos.xyz,_Reflect_Plane.xyz) +_Reflect_Plane.w);
+    //distance = refpos.y;
+  //  color.rgb =  SAMPLE_TEXTURE2D(_PlanarReflectionTexture, sampler_PlanarReflectionTexture,ssPos).rgb;
+   color.rgb = SAMPLE_TEXTURE2D(_PlanarReflectionDepth, sampler_PlanarReflectionDepth,ssPos).rgb;
+//	color.rgb = refpos;
+#endif
 
     return color;
 }
