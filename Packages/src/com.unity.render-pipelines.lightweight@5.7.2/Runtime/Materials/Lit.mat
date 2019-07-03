@@ -89,15 +89,15 @@ Material:
     - _Blend: 0
     - _BumpScale: 1
     - _Cull: 2
-    - _Cutoff: 0.508
+    - _Cutoff: 0.796
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
-    - _GlossMapScale: 0.704
+    - _GlossMapScale: 0.579
     - _Glossiness: 0.5
     - _GlossinessSource: 0
     - _GlossyReflections: 1
-    - _Metallic: 0.318
+    - _Metallic: 0.022
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
@@ -106,7 +106,8 @@ Material:
     - _ReflectionSource: 0
     - _ReflectionStrength: 0.2
     - _Shininess: 1
-    - _Smoothness: 0.988
+    - _Smoothness: 0.736
+    - _SmoothnessSource: 0
     - _SmoothnessTextureChannel: 0
     - _SpecSource: 0
     - _SpecularHighlights: 1

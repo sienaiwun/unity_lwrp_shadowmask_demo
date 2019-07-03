@@ -8,10 +8,14 @@
 #include "Packages/com.unity.render-pipelines.lightweight/ShaderLibrary/Shadows.hlsl"
 
 #ifdef PLANER_REFLECTION
-TEXTURE2D(_PlanarReflectionTexture);            SAMPLER(sampler_PlanarReflectionTexture);
-TEXTURE2D(_PlanarReflectionDepth);            SAMPLER(sampler_PlanarReflectionDepth);
-float4x4 _Reflect_ViewProjectInverse;
-float4 _Reflect_Plane;
+    TEXTURE2D(_PlanarReflectionTexture);            SAMPLER(sampler_PlanarReflectionTexture);
+    #ifdef _GLOSSY_REFLECTION
+        TEXTURE2D(_PlanarReflectionBlurTexture);      SAMPLER(sampler_PlanarReflectionBlurTexture);
+        TEXTURE2D(_PlanarReflectionDepth);            SAMPLER(sampler_PlanarReflectionDepth);
+        float4x4 _Reflect_ViewProjectInverse;
+        float4 _Reflect_Plane;
+        float _Fade_Dis,_Cubemap_Fade_Dis_Radio;
+    #endif
 #endif
 
 // If lightmap is not defined than we evaluate GI (ambient + probes) from SH
@@ -391,15 +395,6 @@ half3 SampleLightmap(float2 lightmapUV, half3 normalWS)
 #define SAMPLE_GI(lmName, shName, normalWSName) SampleSHPixel(shName, normalWSName)
 #endif
 
-#if defined(PLANER_REFLECTION)
-half3 GlossyEnvironmentReflection(half2 screenPos, half perceptualRoughness, half occlusion)
-{
-     half mip = PerceptualRoughnessToMipmapLevel(perceptualRoughness);
-     half4 irradiance = 	SAMPLE_TEXTURE2D_LOD(_PlanarReflectionTexture, sampler_PlanarReflectionTexture, screenPos, mip);
-	 return irradiance * occlusion;
-}
-#endif
-
 half3 GlossyEnvironmentReflection(half3 reflectVector, half perceptualRoughness, half occlusion)
 {
 #if !defined(_ENVIRONMENTREFLECTIONS_OFF)
@@ -417,6 +412,36 @@ half3 GlossyEnvironmentReflection(half3 reflectVector, half perceptualRoughness,
 
 	return _GlossyEnvironmentColor.rgb * occlusion;
 }
+
+#if defined(PLANER_REFLECTION)
+half3 GlossyEnvironmentReflection(half3 reflectVector, half2 screenPos, half perceptualRoughness, half occlusion)
+{
+    #if defined(_GLOSSY_REFLECTION)
+        float3 cubemapReflection = GlossyEnvironmentReflection(reflectVector,perceptualRoughness,occlusion);
+        float depth = SAMPLE_TEXTURE2D(_PlanarReflectionDepth, sampler_PlanarReflectionDepth,screenPos).r;
+        float4 H = float4((screenPos.x) * 2 - 1, (screenPos.y) * 2 - 1, depth, 1.0);
+        float4 D = mul(_Reflect_ViewProjectInverse, H);
+        float3 refpos = D.xyz / D.w;
+        float distance = dot(float4(refpos.xyz,1.0f),_Reflect_Plane);
+        if(distance<0.0)
+            return cubemapReflection;
+        float fade_by_depth = saturate(distance/_Fade_Dis);
+        half mip = PerceptualRoughnessToMipmapLevel(perceptualRoughness);
+        half4 irradiance_clear = SAMPLE_TEXTURE2D_LOD(_PlanarReflectionTexture, sampler_PlanarReflectionTexture, screenPos, mip);
+        half4 irradiance_blur = SAMPLE_TEXTURE2D_LOD(_PlanarReflectionBlurTexture, sampler_PlanarReflectionBlurTexture, screenPos, mip + fade_by_depth * 2.0);
+        half4 irradiance = lerp(irradiance_clear,irradiance_blur,fade_by_depth);
+        half4 planerReflection = irradiance * occlusion;
+        fade_by_depth /= _Cubemap_Fade_Dis_Radio;
+        return lerp(planerReflection,cubemapReflection,fade_by_depth);
+     #else
+        half mip = PerceptualRoughnessToMipmapLevel(perceptualRoughness);
+        half4 irradiance_clear = SAMPLE_TEXTURE2D_LOD(_PlanarReflectionTexture, sampler_PlanarReflectionTexture, screenPos, mip);
+        return irradiance_clear * occlusion;
+     #endif
+}
+#endif
+
+
 
 half3 SubtractDirectMainLightFromLightmap(Light mainLight, half3 normalWS, half3 bakedGI)
 {
@@ -453,7 +478,7 @@ half3 GlobalIllumination(BRDFData brdfData, half3 bakedGI, half occlusion, half3
 
     half3 indirectDiffuse = bakedGI * occlusion;
 #ifdef PLANER_REFLECTION
-	half3 indirectSpecular = GlossyEnvironmentReflection(brdfData.screenPos, brdfData.perceptualRoughness, occlusion);
+	half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, brdfData.screenPos, brdfData.perceptualRoughness, occlusion);
 #else
     half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, brdfData.perceptualRoughness, occlusion);
 #endif

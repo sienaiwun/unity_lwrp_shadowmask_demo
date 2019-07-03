@@ -119,8 +119,8 @@ Shader "Lightweight Render Pipeline/Lit"
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
 
-            #include "LitInput.hlsl"
-            #include "LitForwardPass.hlsl"
+            #include "./LitInput.hlsl"
+            #include "./LitForwardPass.hlsl"
             ENDHLSL
         }
 
