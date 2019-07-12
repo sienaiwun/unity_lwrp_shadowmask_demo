@@ -384,8 +384,10 @@ namespace UnityEngine.Rendering.LWRP
                     Shader.SetGlobalFloat("_Fade_Dis", m_settings.m_fade_dis);
                     Shader.SetGlobalFloat("_Cubemap_Fade_Dis_Radio", m_settings.m_cubemap_fade_dis_ratio);
                 }
-                context.ExecuteCommandBuffer(cmd);
             }
+            context.ExecuteCommandBuffer(cmd);
+            CommandBufferPool.Release(cmd);
+            context.Submit();
             GL.invertCulling = false;
             RenderSettings.fog = true;
             QualitySettings.maximumLODLevel = max;
