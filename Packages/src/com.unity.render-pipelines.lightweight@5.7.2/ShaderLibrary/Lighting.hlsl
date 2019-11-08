@@ -133,7 +133,7 @@ Light GetMainLight(float4 shadowCoord)
     return light;
 }
 
-Light GetAdditionalLight(int i, float3 positionWS)
+Light GetAdditionalLight(int i, float3 positionWS, float4 shadowmask)
 {
     int perObjectLightIndex = GetPerObjectLightIndex(i);
 
@@ -156,7 +156,7 @@ Light GetAdditionalLight(int i, float3 positionWS)
     Light light;
     light.direction = lightDirection;
     light.distanceAttenuation = attenuation;
-    light.shadowAttenuation = AdditionalLightRealtimeShadow(perObjectLightIndex, positionWS);
+    light.shadowAttenuation = AdditionalLightRealtimeShadow(perObjectLightIndex, positionWS, shadowmask);
     light.color = _AdditionalLightsColor[perObjectLightIndex].rgb;
 
     return light;
@@ -570,8 +570,8 @@ half4 LightweightFragmentPBR(InputData inputData, half3 albedo, half metallic, h
     int pixelLightCount = GetAdditionalLightsCount();
     for (int i = 0; i < pixelLightCount; ++i)
     {
-        Light light = GetAdditionalLight(i, inputData.positionWS);
-        color += LightingPhysicallyBased(brdfData, light, inputData.normalWS, inputData.viewDirectionWS);
+        Light light = GetAdditionalLight(i, inputData.positionWS, shadowmask);
+		color += LightingPhysicallyBased(brdfData, light, inputData.normalWS, inputData.viewDirectionWS);
     }
 #endif
 
@@ -601,7 +601,7 @@ half4 LightweightFragmentBlinnPhong(InputData inputData, half3 diffuse, half4 sp
     int pixelLightCount = GetAdditionalLightsCount();
     for (int i = 0; i < pixelLightCount; ++i)
     {
-        Light light = GetAdditionalLight(i, inputData.positionWS);
+        Light light = GetAdditionalLight(i, inputData.positionWS, shadowmask);
         half3 attenuatedLightColor = light.color * (light.distanceAttenuation * light.shadowAttenuation);
         diffuseColor += LightingLambert(attenuatedLightColor, light.direction, inputData.normalWS);
         specularColor += LightingSpecular(attenuatedLightColor, light.direction, inputData.normalWS, inputData.viewDirectionWS, specularGloss, smoothness);

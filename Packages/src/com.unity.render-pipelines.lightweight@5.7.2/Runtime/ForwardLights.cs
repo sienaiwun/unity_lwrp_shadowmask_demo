@@ -170,6 +170,8 @@ namespace UnityEngine.Rendering.LWRP
                 {
                     m_MixedLightingSetup = MixedLightingSetup.ShadowMask;
                 }
+                int channel = light.bakingOutput.occlusionMaskChannel;
+                lightSpotDir.w = channel + 1;
             }
         }
 
