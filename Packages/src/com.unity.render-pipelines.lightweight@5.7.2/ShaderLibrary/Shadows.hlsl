@@ -210,13 +210,10 @@ half AdditionalLightRealtimeShadow(int lightIndex, float3 positionWS,float4 shad
 {
 #if defined(LIGHTMAP_ON) && defined(SHADOWS_SHADOWMASK)
     int chanel = _AdditionalLightsSpotDir[lightIndex].w;
-	switch (chanel) {
-		case 1: return shadowmask.r;
-		case 2: return shadowmask.g;
-		case 3: return shadowmask.b;
-		case 4: return shadowmask.a;
-		default:return 1.0h;
-	}
+	if (chanel >= 1 && chanel <= 4)
+		return shadowmask[chanel - 1];
+	else
+		return 1.0f;
 #endif
 #if !defined(_ADDITIONAL_LIGHT_SHADOWS) || defined(_RECEIVE_SHADOWS_OFF)
     return 1.0h;
