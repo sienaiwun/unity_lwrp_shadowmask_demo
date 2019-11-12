@@ -7,7 +7,7 @@ Currently, we can support at most 4 baked-shadow light. As the following image s
 
 ![multi shaodow ](https://github.com/sienaiwun/lwrp_shadowmask_demo/blob/master/imgs/multi_light.png)
 
-The shadow information is baked in the shadowmask image, even the workshop sets on the floor are removed, we can still see the visibility to the directional lights as well as the other two colored point lights. 
+The shadow information is baked in the shadowmask image. Even the workshop sets on the floor are removed, we can still see the visibility to the directional lights as well as the other two colored point lights. 
 
 ![baked shaodow ](https://github.com/sienaiwun/lwrp_shadowmask_demo/blob/master/imgs/shadowmask.png)
 
