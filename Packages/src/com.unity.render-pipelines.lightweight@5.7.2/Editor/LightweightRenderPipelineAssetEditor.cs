@@ -42,11 +42,9 @@ namespace UnityEditor.Rendering.LWRP
             // Shadow settings
             public static GUIContent shadowDistanceText = EditorGUIUtility.TrTextContent("Distance", "Maximum shadow rendering distance.");
             public static GUIContent shadowCascadesText = EditorGUIUtility.TrTextContent("Cascades", "Number of cascade splits used in for directional shadows");
-            public static GUIContent shadowDepthBias = EditorGUIUtility.TrTextContent("Depth Bias (Deprecated)", "Controls the distance at which the shadows will be pushed away from the light. Useful for avoiding false self-shadowing artifacts.");
-            public static GUIContent shadowNormalBias = EditorGUIUtility.TrTextContent("Normal Bias (Deprecated)", "Controls distance at which the shadow casting surfaces will be shrunk along the surface normal. Useful for avoiding false self-shadowing artifacts.");
+            public static GUIContent shadowDepthBias = EditorGUIUtility.TrTextContent("Depth Bias", "Controls the distance at which the shadows will be pushed away from the light. Useful for avoiding false self-shadowing artifacts.");
+            public static GUIContent shadowNormalBias = EditorGUIUtility.TrTextContent("Normal Bias", "Controls distance at which the shadow casting surfaces will be shrunk along the surface normal. Useful for avoiding false self-shadowing artifacts.");
             public static GUIContent supportsSoftShadows = EditorGUIUtility.TrTextContent("Soft Shadows", "If enabled pipeline will perform shadow filtering. Otherwise all lights that cast shadows will fallback to perform a single shadow sample.");
-            public static GUIContent shadowHWDepthOffsetContent = EditorGUIUtility.TrTextContent("Shadow offset", "GL PolygonOffset first param ");
-            public static GUIContent shadowHWDepthSlopeContent = EditorGUIUtility.TrTextContent("Shadow slope", "GL PolygonOffset second param");
 
             // Advanced settings
             public static GUIContent srpBatcher = EditorGUIUtility.TrTextContent("SRP Batcher (Experimental)", "If enabled, the render pipeline uses the SRP batcher.");
@@ -93,8 +91,6 @@ namespace UnityEditor.Rendering.LWRP
         SerializedProperty m_ShadowCascade4SplitProp;
         SerializedProperty m_ShadowDepthBiasProp;
         SerializedProperty m_ShadowNormalBiasProp;
-        SerializedProperty m_ShadowHWDepthOffsetProp;
-        SerializedProperty m_ShadowHWDepthSlopeProp;
 
         SerializedProperty m_SoftShadowsSupportedProp;
 
@@ -154,8 +150,6 @@ namespace UnityEditor.Rendering.LWRP
             m_ShadowDepthBiasProp = serializedObject.FindProperty("m_ShadowDepthBias");
             m_ShadowNormalBiasProp = serializedObject.FindProperty("m_ShadowNormalBias");
             m_SoftShadowsSupportedProp = serializedObject.FindProperty("m_SoftShadowsSupported");
-            m_ShadowHWDepthOffsetProp = serializedObject.FindProperty("m_ShadowHWDepthOffset");
-            m_ShadowHWDepthSlopeProp = serializedObject.FindProperty("m_ShadowHWDepthSlope");
 
             m_SRPBatcher = serializedObject.FindProperty("m_UseSRPBatcher");
             m_SupportsDynamicBatching = serializedObject.FindProperty("m_SupportsDynamicBatching");
@@ -290,10 +284,6 @@ namespace UnityEditor.Rendering.LWRP
 
                 m_ShadowDepthBiasProp.floatValue = EditorGUILayout.Slider(Styles.shadowDepthBias, m_ShadowDepthBiasProp.floatValue, 0.0f, LightweightRenderPipeline.maxShadowBias);
                 m_ShadowNormalBiasProp.floatValue = EditorGUILayout.Slider(Styles.shadowNormalBias, m_ShadowNormalBiasProp.floatValue, 0.0f, LightweightRenderPipeline.maxShadowBias);
-
-                m_ShadowHWDepthOffsetProp.floatValue = EditorGUILayout.Slider(Styles.shadowHWDepthOffsetContent, m_ShadowHWDepthOffsetProp.floatValue, 0.0f, LightweightRenderPipeline.maxShadowBias);
-                m_ShadowHWDepthSlopeProp.floatValue = EditorGUILayout.Slider(Styles.shadowHWDepthSlopeContent, m_ShadowHWDepthSlopeProp.floatValue, 0.0f, LightweightRenderPipeline.maxShadowBias);
-
                 EditorGUILayout.PropertyField(m_SoftShadowsSupportedProp, Styles.supportsSoftShadows);
                 EditorGUI.indentLevel--;
                 EditorGUILayout.Space();

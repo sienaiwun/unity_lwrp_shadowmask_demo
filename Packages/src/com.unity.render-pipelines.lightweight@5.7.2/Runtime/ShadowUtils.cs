@@ -35,44 +35,7 @@ namespace UnityEngine.Rendering.LWRP
                 GraphicsSettings.HasShaderDefine(Graphics.activeTier, BuiltinShaderDefine.UNITY_METAL_SHADOWS_USE_POINT_FILTERING);
         }
 
-        public static Bounds TransformBounds(Matrix4x4 mat, Bounds _localBounds)
-        {
-            Vector3[] boundingBoxCorner = new Vector3[8];
-            boundingBoxCorner[0] = new Vector3(_localBounds.min.x, _localBounds.min.y, _localBounds.min.z);
-            boundingBoxCorner[1] = new Vector3(_localBounds.min.x, _localBounds.min.y, _localBounds.max.z);
-            boundingBoxCorner[2] = new Vector3(_localBounds.min.x, _localBounds.max.y, _localBounds.min.z);
-            boundingBoxCorner[3] = new Vector3(_localBounds.min.x, _localBounds.max.y, _localBounds.max.z);
-            boundingBoxCorner[4] = new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.min.z);
-            boundingBoxCorner[5] = new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.max.z);
-            boundingBoxCorner[6] = new Vector3(_localBounds.max.x, _localBounds.max.y, _localBounds.min.z);
-            boundingBoxCorner[7] = new Vector3(_localBounds.max.x, _localBounds.max.y, _localBounds.max.z);
-            Bounds output = new Bounds (mat.MultiplyPoint(boundingBoxCorner[0]),new Vector3(0,0,0));
-            for (int i = 1; i < boundingBoxCorner.Length; i ++)
-                output.Encapsulate(mat.MultiplyPoint(boundingBoxCorner[i]));
-            return output;
-        }
-
-
-        public static Matrix4x4 ProjMatFromBounds(Bounds lightview_bounds,Matrix4x4 projection_mat)
-        {
-            //Matrix4x4f& Matrix4x4f::SetOrtho
-            float width = 1.0f / projection_mat.m00;
-            float height = 1.0f / projection_mat.m11;
-
-            float l = Math.Max(-width,lightview_bounds.min.x);
-            float r = Math.Min(width, lightview_bounds.max.x);
-            float b = Math.Max(-height,lightview_bounds.min.y);
-            float t = Math.Min(height, lightview_bounds.max.y);
-            float f = lightview_bounds.min.z;
-            float n = lightview_bounds.max.z;
-             
-            
-            Matrix4x4 proj = Matrix4x4.Ortho(l, r, b, t, n, f);
-            return proj;
-            
-        }
-
-        public static bool ExtractDirectionalLightMatrix(ref CullingResults cullResults, ref ShadowData shadowData, int shadowLightIndex, int cascadeIndex, int shadowmapWidth, int shadowmapHeight, int shadowResolution, float shadowNearPlane, out Vector4 cascadeSplitDistance, out ShadowSliceData shadowSliceData, out Matrix4x4 viewMatrix, out Matrix4x4 projMatrix, Bounds bounds)
+        public static bool ExtractDirectionalLightMatrix(ref CullingResults cullResults, ref ShadowData shadowData, int shadowLightIndex, int cascadeIndex, int shadowmapWidth, int shadowmapHeight, int shadowResolution, float shadowNearPlane, out Vector4 cascadeSplitDistance, out ShadowSliceData shadowSliceData, out Matrix4x4 viewMatrix, out Matrix4x4 projMatrix)
         {
             ShadowSplitData splitData;
             bool success = cullResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(shadowLightIndex,
@@ -83,13 +46,9 @@ namespace UnityEngine.Rendering.LWRP
             shadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
             shadowSliceData.offsetY = (cascadeIndex / 2) * shadowResolution;
             shadowSliceData.resolution = shadowResolution;
-            shadowSliceData.viewMatrix = viewMatrix;  
-
-            Bounds lightViewBounts = TransformBounds(viewMatrix, bounds);
-            Matrix4x4 tight_projMatrix =  ProjMatFromBounds(lightViewBounts,projMatrix);//tight aabb 
-            tight_projMatrix.SetRow(2, projMatrix.GetRow(2));
-            shadowSliceData.projectionMatrix = tight_projMatrix;
-            shadowSliceData.shadowTransform = GetShadowTransform(tight_projMatrix, viewMatrix);
+            shadowSliceData.viewMatrix = viewMatrix;
+            shadowSliceData.projectionMatrix = projMatrix;
+            shadowSliceData.shadowTransform = GetShadowTransform(projMatrix, viewMatrix);
 
             // If we have shadow cascades baked into the atlas we bake cascade transform
             // in each shadow matrix to save shader ALU and L/S
@@ -184,7 +143,7 @@ namespace UnityEngine.Rendering.LWRP
             float depthBias = -shadowData.bias[shadowLightIndex].x * texelSize;
             float normalBias = -shadowData.bias[shadowLightIndex].y * texelSize;
             
-            /*if (shadowData.supportsSoftShadows)
+            if (shadowData.supportsSoftShadows)
             {
                 // TODO: depth and normal bias assume sample is no more than 1 texel away from shadowmap
                 // This is not true with PCF. Ideally we need to do either
@@ -194,9 +153,9 @@ namespace UnityEngine.Rendering.LWRP
                 const float kernelRadius = 2.5f;
                 depthBias *= kernelRadius;
                 normalBias *= kernelRadius;
-            }*/
+            }
 
-            return new Vector4(depthBias, normalBias, -shadowData.bias[shadowLightIndex].z, -shadowData.bias[shadowLightIndex].w);
+            return new Vector4(depthBias, normalBias, 0.0f, 0.0f);
         }
 
         public static void SetupShadowCasterConstantBuffer(CommandBuffer cmd, ref VisibleLight shadowLight, Vector4 shadowBias)

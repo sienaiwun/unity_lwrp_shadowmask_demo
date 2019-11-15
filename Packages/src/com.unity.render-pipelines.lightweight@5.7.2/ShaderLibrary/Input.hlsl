@@ -27,9 +27,6 @@ struct InputData
 #if defined(LIGHTMAP_ON) && defined(SHADOWS_SHADOWMASK)
 	half4   bakedAtten;
 #endif
-#if defined(PLANER_REFLECTION)
-	half2 screenPos;
-#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////

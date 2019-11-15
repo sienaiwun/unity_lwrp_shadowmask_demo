@@ -37,10 +37,6 @@ struct Varyings
     float4 shadowCoord              : TEXCOORD7;
 #endif
 
-#if defined(PLANER_REFLECTION)
-	float4 positionCS_TO_PS       : TEXCOORD8;
-#endif
-
     float4 positionCS               : SV_POSITION;
     UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
@@ -77,13 +73,6 @@ void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData
     inputData.bakedGI = SAMPLE_GI(input.lightmapUV, input.vertexSH, inputData.normalWS);
 #if defined(LIGHTMAP_ON) && defined(SHADOWS_SHADOWMASK)  
 	inputData.bakedAtten = SampleShadowMask(input.lightmapUV);
-#endif
-#if defined(PLANER_REFLECTION)
-	//screenUV.xyz /= screenUV.w;
-    float4 temp_pos = input.positionCS_TO_PS;
-     float4 screenUV = ComputeScreenPos(temp_pos);
-                screenUV.xyz /= screenUV.w;
-	inputData.screenPos =screenUV.xy ;
 #endif
 }
 
@@ -125,21 +114,14 @@ Varyings LitPassVertex(Attributes input)
     output.positionWS = vertexInput.positionWS;
 #endif
 
-
-	output.positionCS = vertexInput.positionCS;
-
 #if defined(_MAIN_LIGHT_SHADOWS) && !defined(_RECEIVE_SHADOWS_OFF)
     output.shadowCoord = GetShadowCoord(vertexInput);
 #endif
 
-#if defined(PLANER_REFLECTION)
-	output.positionCS_TO_PS =  vertexInput.positionCS;
-#endif
-
+    output.positionCS = vertexInput.positionCS;
 
     return output;
 }
-
 
 // Used in Standard (Physically Based) shader
 half4 LitPassFragment(Varyings input) : SV_Target
@@ -155,7 +137,6 @@ half4 LitPassFragment(Varyings input) : SV_Target
     half4 color = LightweightFragmentPBR(inputData, surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion, surfaceData.emission, surfaceData.alpha);
 
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
-
     return color;
 }
 

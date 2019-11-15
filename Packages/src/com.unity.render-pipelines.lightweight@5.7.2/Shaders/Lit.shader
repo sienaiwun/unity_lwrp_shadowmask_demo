@@ -119,8 +119,8 @@ Shader "Lightweight Render Pipeline/Lit"
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
 
-            #include "./LitInput.hlsl"
-            #include "./LitForwardPass.hlsl"
+            #include "LitInput.hlsl"
+            #include "LitForwardPass.hlsl"
             ENDHLSL
         }
 
@@ -183,8 +183,8 @@ Shader "Lightweight Render Pipeline/Lit"
             // GPU Instancing
             #pragma multi_compile_instancing
 
-			#include "Packages/com.unity.render-pipelines.lightweight/Shaders/LitInput.hlsl"
-			#include "Packages/com.unity.render-pipelines.lightweight/Shaders/DepthOnlyPass.hlsl"
+            #include "LitInput.hlsl"
+            #include "DepthOnlyPass.hlsl"
             ENDHLSL
         }
 

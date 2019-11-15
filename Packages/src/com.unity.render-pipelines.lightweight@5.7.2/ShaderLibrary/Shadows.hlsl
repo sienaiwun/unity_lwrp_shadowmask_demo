@@ -122,13 +122,6 @@ real SampleShadowmap(float4 shadowCoord, TEXTURE2D_SHADOW_PARAM(ShadowMap, sampl
     // Compiler will optimize this branch away as long as isPerspectiveProjection is known at compile time
     if (isPerspectiveProjection)
         shadowCoord.xyz /= shadowCoord.w;
-    
-    float depth_slope = fwidth(shadowCoord.z)*_ShadowBias.w;
-#if UNITY_REVERSED_Z
-	shadowCoord.z -= depth_slope ;
-#else
-	shadowCoord.z += depth_slope ;
-#endif
 
     real attenuation;
 
