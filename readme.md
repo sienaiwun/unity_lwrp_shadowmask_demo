@@ -11,5 +11,5 @@ The shadow information is baked in the shadowmask image. Even the workshop sets 
 
 ![baked shaodow ](https://github.com/sienaiwun/lwrp_shadowmask_demo/blob/master/imgs/shadowmask.png)
 
-If you want to integrate these changes into URP, you can also see this [pull request] commits (https://github.com/Unity-Technologies/ScriptableRenderPipeline/pull/5250/commits) which has the main code difference.
+If you want to integrate these changes into URP, you can also see this [pull request] (https://github.com/Unity-Technologies/ScriptableRenderPipeline/pull/5250/commits) which has the main code difference.
 
