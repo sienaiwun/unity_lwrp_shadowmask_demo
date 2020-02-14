@@ -3,7 +3,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg)](https://github.com/Tencent/InjectFix/pulls)
 
 This demo shows how Unity's LWRP or URP template works with shadowmask lighting mode. 
-Currently, we can support at most 4 baked-shadow light. As the following image shows.
+Currently, we can support at most 4 baked-shadow lights. As the following image shows.
 
 ![multi shaodow ](https://github.com/sienaiwun/lwrp_shadowmask_demo/blob/master/imgs/multi_light.png)
 
@@ -11,7 +11,7 @@ The shadow information is baked in the shadowmask image. Even the workshop sets 
 
 ![baked shaodow ](https://github.com/sienaiwun/lwrp_shadowmask_demo/blob/master/imgs/shadowmask.png)
 
-## merge the difference
+## How to merge
 
-For clarity, or if you want to integrate these changes into URP, you can also see this [pull request](https://github.com/Unity-Technologies/ScriptableRenderPipeline/pull/5250/commits) which has the main code difference.
+For clarity, if you want to integrate these changes into URP, you can also see this [pull request](https://github.com/Unity-Technologies/ScriptableRenderPipeline/pull/5250/commits) which has the main code difference.
 
