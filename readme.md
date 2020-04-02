@@ -1,6 +1,6 @@
 # lwrp_shadowmask_demo
-[![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Tencent/InjectFix/blob/master/LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg)](https://github.com/Tencent/InjectFix/pulls)
+[![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/sienaiwun/unity_lwrp_shadowmask_demo/blob/master/LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg)](https://github.com/sienaiwun/unity_lwrp_shadowmask_demo/pulls)
 
 This demo shows how Unity's LWRP or URP template works with shadowmask lighting mode. 
 Currently, we can support at most 4 baked-shadow lights. As the following image shows.
