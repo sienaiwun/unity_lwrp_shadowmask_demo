@@ -13,5 +13,5 @@ The shadow information is baked in the shadowmask image. Even the workshop sets 
 
 ## How to merge
 
-For clarity, if you want to integrate these changes into URP, you can also see this [pull request](https://github.com/Unity-Technologies/ScriptableRenderPipeline/pull/5250/commits) which has the main code difference.
+For clarity, if you want to integrate these changes into URP, you can also see this [branch](https://github.com/sienaiwun/ScriptableRenderPipeline/commits/universal_shadowmask) which has the main code difference.
 
